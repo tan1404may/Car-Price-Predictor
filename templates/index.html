@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head xmlns="http://www.w3.org/1999/xhtml">
+    <meta charset="UTF-8">
+    <title>Car Price Predictor</title>
+    <link rel="stylesheet" href="static/css/style.css">
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+
+</head>
+<body class="font-serif">
+    <header class="w-full h-24 shadow-md flex items-center bg-black">
+        <h1 class="text-2xl ml-10 xl:ml-24 text-white font-semibold">CAR PRICE PREDICTOR</h1>
+    </header>
+    <main class="mt-10">
+        <div class="flex flex-col justify-center items-center">
+            <h1 class="text-2xl">Welcome to Car Price Predictor</h1>
+            <p class="mt-5 text-xl">This app predicts the price of a car you want to sell. Try filling the details below</p>
+        </div>
+        <form action="/" class="flex flex-col rounded-xl mt-16 p-10 border-2  max-w-4xl shadow-xl mx-auto">
+            <div class="flex flex-col">
+                <label class="text-center">Select the company:</label>
+                <select class="mt-4 border-2 p-1.5 rounded-md" id="company" name="company" required="1"
+                        onchange="load_car_models(this.id,'car_models')">
+                    {% for company in companies %}
+                        <option class="" value="{{ company }}">{{ company }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mt-4 flex flex-col">
+                <label class="text-center">Select the model: </label>
+                <select class="mt-4 border-2 p-1.5 rounded-md" id="car_models" name="car_models" required="1">
+                    <option value="">1</option>
+                    <option value="">2</option>
+                    <option value="">3</option>
+                </select>
+            </div>
+            <div class="mt-4 flex flex-col">
+                <label class="text-center">Select Year of Purchase: </label>
+                <select class="mt-4 border-2 p-1.5 rounded-md" id="year" name="year" required="1">
+                    {% for year in years %}
+                    <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mt-4 flex flex-col">
+                <label class="text-center">Select the Fuel Type: </label>
+                <select class="mt-4 border-2 p-1.5 rounded-md" id="fuel_type" name="fuel_type" required="1">
+                    {% for fuel in fuel_types %}
+                    <option value="{{ fuel }}">{{ fuel }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mt-4 flex flex-col">
+                <label class="text-center">Enter the Number of Kilometres that the car has travelled: </label>
+                <input type="text" class="mt-4 p-1.5 border-2 mt-4 rounded-md" id="kilo_driven" name="kilo_driven"
+                       placeholder="Enter the kilometres driven ">
+            </div>
+            <div class="mt-10">
+                <button  class="w-full bg-black text-white p-2 rounded-md" onclick="send_data()">Predict Price</button>
+            </div>
+
+            <div class="mt-16">
+                <div class="flex justify-center items-center">
+                    <h4><span id="prediction">Prediction result</span></h4>
+                </div>
+            </div>
+        </form>
+    </main>
+    <footer class="mt-20 bg-black w-full h-12 flex items-center justify-center">
+        <div class="flex justify-center items-center ">
+            <h3 class="text-white">copyright@CAR-PRICE-PREDICTOR</h3>
+        </div>
+    </footer>
+
+
+<script>
+
+    function load_car_models(company_id,car_model_id)
+    {
+        var company=document.getElementById(company_id);
+        var car_model= document.getElementById(car_model_id);
+        console.log(company.value);
+        car_model.value="";
+        car_model.innerHTML="";
+        {% for company in companies %}
+            if( company.value == "{{ company }}")
+            {
+                {% for model in car_models %}
+                    {% if company in model %}
+
+                        var newOption= document.createElement("option");
+                        newOption.value="{{ model }}";
+                        newOption.innerHTML="{{ model }}";
+                        car_model.options.add(newOption);
+                    {% endif %}
+                {% endfor %}
+            }
+        {% endfor %}
+    }
+
+    function form_handler(event) {
+        event.preventDefault(); // Don't submit the form normally
+    }
+    function send_data()
+    {
+        document.querySelector('form').addEventListener("submit",form_handler);
+
+        var fd=new FormData(document.querySelector('form'));
+
+        var xhr= new XMLHttpRequest({mozSystem: true});
+
+        xhr.open('POST','/predict',true);
+        document.getElementById('prediction').innerHTML="Wait.....";
+        xhr.onreadystatechange = function(){
+            if(xhr.readyState == XMLHttpRequest.DONE){
+                document.getElementById('prediction').innerHTML="Prediction: ₹"+xhr.responseText;
+
+            }
+        };
+
+        xhr.onload= function(){};
+
+        xhr.send(fd);
+    }
+</script>
+
+
+</body>
+</html>
